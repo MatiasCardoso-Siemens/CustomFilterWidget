@@ -1,0 +1,46 @@
+{
+  "name": "interactive-filter-grid",
+  "widgetName": "InteractiveFilterGrid",
+  "version": "1.0.0",
+  "description": "Grid interativo com filtros hierárquicos em cascata",
+  "author": "Matias Cardoso",
+  "engines": {
+    "node": ">=16"
+  },
+  "license": "Apache-2.0",
+  "config": {
+    "projectPath": "C:\\Users\\hb0wsp\\Mendix\\PRNDigital-main_2",
+    "mendixHost": "http://localhost:8080",
+    "developmentPort": 3002
+  },
+  "packagePath": "siemens",
+  "scripts": {
+    "start": "pluggable-widgets-tools start:server",
+    "dev": "pluggable-widgets-tools start:web",
+    "build": "pluggable-widgets-tools build:web",
+    "lint": "pluggable-widgets-tools lint",
+    "lint:fix": "pluggable-widgets-tools lint:fix",
+    "prerelease": "npm run lint",
+    "release": "pluggable-widgets-tools release:web"
+  },
+  "devDependencies": {
+    "@mendix/pluggable-widgets-tools": "^11.11.0"
+  },
+  "dependencies": {
+    "classnames": "^2.5.1",
+    "exceljs": "^4.4.0",
+    "lucide-react": "^0.544.0"
+  },
+  "resolutions": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "overrides": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "exceljs": {
+      "uuid": "^11.1.1"
+    },
+    "brace-expansion@<=5.0.7": "^5.0.8"
+  }
+}

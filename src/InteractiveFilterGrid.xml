@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget id="siemens.interactivefiltergrid.InteractiveFilterGrid" pluginWidget="true" needsEntityContext="false" offlineCapable="true"
+        supportedPlatform="Web"
+        xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
+    <name>Interactive Filter Grid</name>
+    <description>Tabela interativa com explorador de dados, painel lateral colapsavel ou superior, e filtros em botoes/chips/comboboxes em cascata.</description>
+    <icon/>
+    <properties>
+        <propertyGroup caption="General">
+            <property key="dataSource" type="datasource" isList="true" required="true">
+                <caption>Datasource</caption>
+                <description>Lista de objetos a serem filtrados e exibidos na tabela.</description>
+            </property>
+        </propertyGroup>
+
+        <propertyGroup caption="Layout &amp; Placement">
+            <property key="filterLayout" type="enumeration" defaultValue="sidebar">
+                <caption>Posição dos Filtros</caption>
+                <description>Posição onde o painel de filtros é exibido em relação à tabela.</description>
+                <enumerationValues>
+                    <enumerationValue key="sidebar">Painel Lateral Esquerdo (Sidebar)</enumerationValue>
+                    <enumerationValue key="sidebarRight">Painel Lateral Direito</enumerationValue>
+                    <enumerationValue key="top">Painel Superior (Topo)</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="sidebarDefaultOpen" type="boolean" defaultValue="true">
+                <caption>Sidebar Aberto por Padrão</caption>
+                <description>Se o painel lateral inicia aberto ou recolhido.</description>
+            </property>
+            <property key="sidebarWidth" type="string" required="false" defaultValue="280px">
+                <caption>Largura do Painel Lateral</caption>
+                <description>Largura CSS do painel lateral (ex: 280px, 320px, 25%).</description>
+            </property>
+        </propertyGroup>
+
+        <propertyGroup caption="Filters Setup">
+            <property key="filterList" type="object" isList="true" required="false">
+                <caption>Filters</caption>
+                <description>Lista de filtros em cascata (a ordem determina a hierarquia de filtragem de cima para baixo).</description>
+                <properties>
+                    <propertyGroup caption="Filter Setup">
+                        <property key="filterLabel" type="string" required="true">
+                            <caption>Label</caption>
+                            <description>Rótulo exibido para o filtro.</description>
+                        </property>
+                        <property key="filterLabelText" type="textTemplate" required="false">
+                            <caption>Label translation</caption>
+                            <description>Optional translated label. When empty, the Label value is used.</description>
+                        </property>
+                        <property key="filterAttribute" type="attribute" dataSource="../dataSource" required="true">
+                            <caption>Attribute</caption>
+                            <description>Atributo do objeto usado para alimentar as opções e filtrar.</description>
+                            <attributeTypes>
+                                <attributeType name="String"/>
+                                <attributeType name="Integer"/>
+                                <attributeType name="Long"/>
+                                <attributeType name="Decimal"/>
+                                <attributeType name="DateTime"/>
+                                <attributeType name="Boolean"/>
+                                <attributeType name="Enum"/>
+                            </attributeTypes>
+                        </property>
+                        <property key="filterControlType" type="enumeration" required="true" defaultValue="buttons">
+                            <caption>Tipo de Controle Visual</caption>
+                            <description>Como as opções deste filtro serão desenhadas na tela.</description>
+                            <enumerationValues>
+                                <enumerationValue key="buttons">Botões / Chips Individuais</enumerationValue>
+                                <enumerationValue key="checkboxes">Lista de Checkboxes com Badge</enumerationValue>
+                                <enumerationValue key="combobox">Combobox Dropdown (Compacto)</enumerationValue>
+                            </enumerationValues>
+                        </property>
+                        <property key="filterSelectionMode" type="enumeration" required="true" defaultValue="multi">
+                            <caption>Modo de Seleção</caption>
+                            <description>Permite selecionar uma única opção ou várias simultaneamente.</description>
+                            <enumerationValues>
+                                <enumerationValue key="multi">Múltipla seleção (OR)</enumerationValue>
+                                <enumerationValue key="single">Seleção única</enumerationValue>
+                            </enumerationValues>
+                        </property>
+                        <property key="filterMaxVisibleButtons" type="integer" defaultValue="8">
+                            <caption>Máx de Botões Visíveis (Ver mais)</caption>
+                            <description>Quantidade de opções exibidas antes de mostrar o botão 'Ver mais' (0 para mostrar todas).</description>
+                        </property>
+                        <property key="filterDelimiter" type="string" required="false" defaultValue="||">
+                            <caption>Delimitador Multi-valor</caption>
+                            <description>Delimitador usado se o atributo contiver múltiplos valores concatenados (ex: ||, ;, ,). Deixe em branco se for valor único simples.</description>
+                        </property>
+                        <property key="filterShowCounts" type="boolean" defaultValue="true">
+                            <caption>Exibir Contador de Registros</caption>
+                            <description>Exibe o número de registros disponíveis em cada opção.</description>
+                        </property>
+                        <property key="filterPlaceholder" type="string" required="false" defaultValue="Todos">
+                            <caption>Placeholder / Texto Todos</caption>
+                            <description>Texto padrão quando em modo combobox ou botão Todos.</description>
+                        </property>
+                        <property key="filterPlaceholderText" type="textTemplate" required="false">
+                            <caption>Placeholder translation</caption>
+                            <description>Optional translated placeholder. When empty, the configured placeholder is used.</description>
+                        </property>
+                    </propertyGroup>
+                </properties>
+            </property>
+        </propertyGroup>
+
+        <propertyGroup caption="Filtro Superior (Contains)">
+            <property key="enablePresetFilter" type="boolean" defaultValue="false">
+                <caption>Habilitar filtro superior</caption>
+                <description>Exibe um seletor de seleção única alimentado por uma lista separada de objetos.</description>
+            </property>
+            <property key="presetFilterLabel" type="string" required="false" defaultValue="Grupo de ativos">
+                <caption>Rótulo do filtro</caption>
+                <description>Texto exibido acima do seletor.</description>
+            </property>
+            <property key="presetFilterLabelText" type="textTemplate" required="false">
+                <caption>Rótulo traduzível</caption>
+                <description>Optional translated label. When empty, the configured label is used.</description>
+            </property>
+            <property key="presetFilterPlaceholder" type="string" required="false" defaultValue="Selecione um grupo...">
+                <caption>Placeholder</caption>
+                <description>Texto exibido quando nenhuma opção estiver selecionada.</description>
+            </property>
+            <property key="presetFilterPlaceholderText" type="textTemplate" required="false">
+                <caption>Placeholder traduzível</caption>
+                <description>Optional translated placeholder. When empty, the configured placeholder is used.</description>
+            </property>
+            <property key="presetFilterDataSource" type="datasource" isList="true" required="true">
+                <caption>Lista de opções</caption>
+                <description>Lista separada de objetos que fornece as opções do filtro.</description>
+            </property>
+            <property key="presetFilterOptionLabel" type="attribute" dataSource="presetFilterDataSource" required="true">
+                <caption>Atributo do rótulo</caption>
+                <description>Atributo String exibido como rótulo de cada opção.</description>
+                <attributeTypes>
+                    <attributeType name="String" />
+                </attributeTypes>
+            </property>
+            <property key="presetFilterOptionValue" type="attribute" dataSource="presetFilterDataSource" required="true">
+                <caption>Atributo do valor</caption>
+                <description>Atributo String cujo valor será procurado nos registros filtrados.</description>
+                <attributeTypes>
+                    <attributeType name="String" />
+                </attributeTypes>
+            </property>
+            <property key="presetFilterTargetAttribute" type="attribute" dataSource="dataSource" required="true">
+                <caption>Atributo de busca nos registros</caption>
+                <description>Atributo String da lista principal onde o valor selecionado será procurado como trecho.</description>
+                <attributeTypes>
+                    <attributeType name="String" />
+                </attributeTypes>
+            </property>
+        </propertyGroup>
+
+        <propertyGroup caption="Columns">
+            <property key="columnList" type="object" isList="true" required="true">
+                <caption>Columns</caption>
+                <description>Colunas visíveis no grid (podem ser diferentes dos filtros configurados).</description>
+                <properties>
+                    <propertyGroup caption="Column Setup">
+                        <property key="columnHeader" type="string" required="true">
+                            <caption>Header</caption>
+                            <description>Título do cabeçalho da coluna.</description>
+                        </property>
+                        <property key="columnHeaderText" type="textTemplate" required="false">
+                            <caption>Header translation</caption>
+                            <description>Optional translated header. When empty, the Header value is used.</description>
+                        </property>
+                        <property key="columnAttribute" type="attribute" dataSource="../dataSource" required="true">
+                            <caption>Attribute</caption>
+                            <description>Atributo a ser exibido nesta coluna.</description>
+                            <attributeTypes>
+                                <attributeType name="String"/>
+                                <attributeType name="Integer"/>
+                                <attributeType name="Long"/>
+                                <attributeType name="Decimal"/>
+                                <attributeType name="DateTime"/>
+                                <attributeType name="Boolean"/>
+                                <attributeType name="Enum"/>
+                            </attributeTypes>
+                        </property>
+                        <property key="columnWidth" type="string" required="false" defaultValue="">
+                            <caption>Width</caption>
+                            <description>Largura CSS da coluna (ex: 150px, 20%, ou vazio para automático).</description>
+                        </property>
+                        <property key="columnSortable" type="boolean" defaultValue="true">
+                            <caption>Sortable</caption>
+                            <description>Permite ordenar ao clicar no cabeçalho da coluna.</description>
+                        </property>
+                        <property key="columnAlignment" type="enumeration" defaultValue="left">
+                            <caption>Alignment</caption>
+                            <description>Alinhamento do conteúdo na coluna.</description>
+                            <enumerationValues>
+                                <enumerationValue key="left">Left</enumerationValue>
+                                <enumerationValue key="center">Center</enumerationValue>
+                                <enumerationValue key="right">Right</enumerationValue>
+                            </enumerationValues>
+                        </property>
+                        <property key="columnRenderAsLink" type="boolean" defaultValue="false">
+                            <caption>Renderizar como link</caption>
+                            <description>Exibe o valor do atributo como texto de um link calculado por expressão.</description>
+                        </property>
+                        <property key="columnLinkExpression" type="expression" dataSource="../dataSource" required="false">
+                            <caption>Expressão do link</caption>
+                            <description>Expressão String avaliada para cada linha, usada como destino do link da coluna.</description>
+                            <returnType type="String" />
+                        </property>
+                        <property key="columnRenderAsHtml" type="boolean" defaultValue="false">
+                            <caption>Render as HTML</caption>
+                            <description>Renderiza o conteúdo desta coluna interpretando tags HTML ao invés de texto simples.</description>
+                        </property>
+                        <property key="columnRenderAsTags" type="boolean" defaultValue="true">
+                            <caption>Renderizar como Tags/Badges</caption>
+                            <description>Detecta múltiplos valores (com delimitador) e renderiza como badges visuais elegantes.</description>
+                        </property>
+                        <property key="columnDelimiter" type="string" required="false" defaultValue="||">
+                            <caption>Delimitador de Tags</caption>
+                            <description>Delimitador para dividir os múltiplos valores em tags (padrão: ||).</description>
+                        </property>
+                    </propertyGroup>
+                </properties>
+            </property>
+        </propertyGroup>
+
+        <propertyGroup caption="Options &amp; Appearance">
+            <property key="panelTitle" type="string" required="false" defaultValue="Filtros">
+                <caption>Panel Title</caption>
+                <description>Título exibido na barra de filtros (deixe vazio para ocultar).</description>
+            </property>
+            <property key="panelTitleText" type="textTemplate" required="false">
+                <caption>Panel title translation</caption>
+                <description>Optional translated title. When empty, the configured panel title is used.</description>
+            </property>
+            <property key="panelDescription" type="string" required="false" defaultValue="Combine os filtros para refinar os requisitos">
+                <caption>Panel Description</caption>
+                <description>Texto descritivo exibido abaixo do título do painel lateral.</description>
+            </property>
+            <property key="panelDescriptionText" type="textTemplate" required="false">
+                <caption>Panel description translation</caption>
+                <description>Optional translated description. When empty, the configured description is used.</description>
+            </property>
+            <property key="enableGlobalSearch" type="boolean" defaultValue="true">
+                <caption>Global Search</caption>
+                <description>Habilita campo de busca geral por texto em todos os atributos das colunas.</description>
+            </property>
+            <property key="globalSearchPlaceholder" type="string" required="false" defaultValue="Pesquisar nos registros...">
+                <caption>Search Placeholder</caption>
+                <description>Texto exibido dentro do campo de busca global.</description>
+            </property>
+            <property key="globalSearchPlaceholderText" type="textTemplate" required="false">
+                <caption>Search placeholder translation</caption>
+                <description>Optional translated placeholder. When empty, the configured placeholder is used.</description>
+            </property>
+            <property key="enablePagination" type="boolean" defaultValue="true">
+                <caption>Enable Pagination</caption>
+                <description>Habilita controle de paginação.</description>
+            </property>
+            <property key="defaultPageSize" type="integer" defaultValue="20">
+                <caption>Items per Page</caption>
+                <description>Quantidade inicial de linhas por página.</description>
+            </property>
+            <property key="emptyMessage" type="string" required="false" defaultValue="Nenhum registro encontrado para os filtros selecionados.">
+                <caption>Empty State Message</caption>
+                <description>Mensagem exibida quando nenhum registro atender aos filtros.</description>
+            </property>
+            <property key="emptyMessageText" type="textTemplate" required="false">
+                <caption>Empty state translation</caption>
+                <description>Optional translated empty state. When empty, the configured message is used.</description>
+            </property>
+            <property key="onRowClick" type="action" dataSource="dataSource" required="false">
+                <caption>On Row Click</caption>
+                <description>Ação executada ao clicar em uma linha da tabela.</description>
+            </property>
+        </propertyGroup>
+
+        <propertyGroup caption="Interface Texts">
+            <propertyGroup caption="Filters and Search">
+                <property key="textClearFilters" type="textTemplate" required="false">
+                    <caption>Clear filters</caption><description />
+                    <translations><translation lang="pt_BR">Limpar filtros</translation><translation lang="en_US">Clear filters</translation></translations>
+                </property>
+                <property key="textClear" type="textTemplate" required="false">
+                    <caption>Clear</caption><description />
+                    <translations><translation lang="pt_BR">Limpar</translation><translation lang="en_US">Clear</translation></translations>
+                </property>
+                <property key="textClearAll" type="textTemplate" required="false">
+                    <caption>Clear all</caption><description />
+                    <translations><translation lang="pt_BR">Limpar todos</translation><translation lang="en_US">Clear all</translation></translations>
+                </property>
+                <property key="textAppliedFilters" type="textTemplate" required="false">
+                    <caption>Applied filters</caption><description />
+                    <translations><translation lang="pt_BR">Filtros aplicados:</translation><translation lang="en_US">Applied filters:</translation></translations>
+                </property>
+                <property key="textSearchLabel" type="textTemplate" required="false">
+                    <caption>Search label</caption><description />
+                    <translations><translation lang="pt_BR">Busca:</translation><translation lang="en_US">Search:</translation></translations>
+                </property>
+                <property key="textClearSearch" type="textTemplate" required="false">
+                    <caption>Clear search tooltip</caption><description />
+                    <translations><translation lang="pt_BR">Limpar pesquisa</translation><translation lang="en_US">Clear search</translation></translations>
+                </property>
+                <property key="textRemoveFilter" type="textTemplate" required="false">
+                    <caption>Remove filter tooltip</caption><description />
+                    <translations><translation lang="pt_BR">Remover filtro</translation><translation lang="en_US">Remove filter</translation></translations>
+                </property>
+                <property key="textCollapseFilters" type="textTemplate" required="false">
+                    <caption>Collapse filters tooltip</caption><description />
+                    <translations><translation lang="pt_BR">Recolher painel de filtros</translation><translation lang="en_US">Collapse filters panel</translation></translations>
+                </property>
+                <property key="textExpandFilters" type="textTemplate" required="false">
+                    <caption>Expand filters tooltip</caption><description />
+                    <translations><translation lang="pt_BR">Expandir painel de filtros</translation><translation lang="en_US">Expand filters panel</translation></translations>
+                </property>
+                <property key="textSearchPlaceholder" type="textTemplate" required="false">
+                    <caption>Search options placeholder</caption><description />
+                    <translations><translation lang="pt_BR">Filtrar opções...</translation><translation lang="en_US">Filter options...</translation></translations>
+                </property>
+                <property key="textNoOptions" type="textTemplate" required="false">
+                    <caption>No options available</caption><description />
+                    <translations><translation lang="pt_BR">Nenhuma opção disponível</translation><translation lang="en_US">No options available</translation></translations>
+                </property>
+                <property key="textNoOptionsFound" type="textTemplate" required="false">
+                    <caption>No options found</caption><description />
+                    <translations><translation lang="pt_BR">Nenhuma opção encontrada</translation><translation lang="en_US">No options found</translation></translations>
+                </property>
+                <property key="textAll" type="textTemplate" required="false">
+                    <caption>All options</caption><description />
+                    <translations><translation lang="pt_BR">Todos</translation><translation lang="en_US">All</translation></translations>
+                </property>
+                <property key="textSelected" type="textTemplate" required="false">
+                    <caption>Selected items suffix</caption><description />
+                    <translations><translation lang="pt_BR">selecionados</translation><translation lang="en_US">selected</translation></translations>
+                </property>
+                <property key="textClearSelection" type="textTemplate" required="false">
+                    <caption>Clear selection</caption><description />
+                    <translations><translation lang="pt_BR">Limpar seleção</translation><translation lang="en_US">Clear selection</translation></translations>
+                </property>
+                <property key="textItems" type="textTemplate" required="false">
+                    <caption>Item count suffix</caption><description />
+                    <translations><translation lang="pt_BR">itens</translation><translation lang="en_US">items</translation></translations>
+                </property>
+                <property key="textShowLess" type="textTemplate" required="false">
+                    <caption>Show less</caption><description />
+                    <translations><translation lang="pt_BR">Mostrar menos</translation><translation lang="en_US">Show less</translation></translations>
+                </property>
+                <property key="textMoreOptions" type="textTemplate" required="false">
+                    <caption>More options suffix</caption><description />
+                    <translations><translation lang="pt_BR">opções</translation><translation lang="en_US">options</translation></translations>
+                </property>
+                <property key="textClearAppliedFilters" type="textTemplate" required="false">
+                    <caption>Clear applied filters</caption><description />
+                    <translations><translation lang="pt_BR">Limpar filtros aplicados</translation><translation lang="en_US">Clear applied filters</translation></translations>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Pagination">
+                <property key="textPageSize" type="textTemplate" required="false">
+                    <caption>Page size</caption><description />
+                    <translations><translation lang="pt_BR">Itens por página:</translation><translation lang="en_US">Items per page:</translation></translations>
+                </property>
+                <property key="textShowing" type="textTemplate" required="false">
+                    <caption>Showing</caption><description />
+                    <translations><translation lang="pt_BR">Mostrando</translation><translation lang="en_US">Showing</translation></translations>
+                </property>
+                <property key="textTo" type="textTemplate" required="false">
+                    <caption>Range separator</caption><description />
+                    <translations><translation lang="pt_BR">a</translation><translation lang="en_US">to</translation></translations>
+                </property>
+                <property key="textOf" type="textTemplate" required="false">
+                    <caption>Total separator</caption><description />
+                    <translations><translation lang="pt_BR">de</translation><translation lang="en_US">of</translation></translations>
+                </property>
+                <property key="textPage" type="textTemplate" required="false">
+                    <caption>Page</caption><description />
+                    <translations><translation lang="pt_BR">Página</translation><translation lang="en_US">Page</translation></translations>
+                </property>
+                <property key="textFirstPage" type="textTemplate" required="false">
+                    <caption>First page tooltip</caption><description />
+                    <translations><translation lang="pt_BR">Primeira página</translation><translation lang="en_US">First page</translation></translations>
+                </property>
+                <property key="textPreviousPage" type="textTemplate" required="false">
+                    <caption>Previous page tooltip</caption><description />
+                    <translations><translation lang="pt_BR">Página anterior</translation><translation lang="en_US">Previous page</translation></translations>
+                </property>
+                <property key="textNextPage" type="textTemplate" required="false">
+                    <caption>Next page tooltip</caption><description />
+                    <translations><translation lang="pt_BR">Próxima página</translation><translation lang="en_US">Next page</translation></translations>
+                </property>
+                <property key="textLastPage" type="textTemplate" required="false">
+                    <caption>Last page tooltip</caption><description />
+                    <translations><translation lang="pt_BR">Última página</translation><translation lang="en_US">Last page</translation></translations>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Export">
+                <property key="textExportTitle" type="textTemplate" required="false">
+                    <caption>Export tooltip</caption><description />
+                    <translations><translation lang="pt_BR">Exportar registros filtrados para Excel</translation><translation lang="en_US">Export filtered records to Excel</translation></translations>
+                </property>
+                <property key="textExportExcel" type="textTemplate" required="false">
+                    <caption>Export to Excel</caption><description />
+                    <translations><translation lang="pt_BR">Exportar Excel</translation><translation lang="en_US">Export Excel</translation></translations>
+                </property>
+                <property key="textExporting" type="textTemplate" required="false">
+                    <caption>Exporting</caption><description />
+                    <translations><translation lang="pt_BR">Exportando...</translation><translation lang="en_US">Exporting...</translation></translations>
+                </property>
+                <property key="textExportError" type="textTemplate" required="false">
+                    <caption>Export error</caption><description />
+                    <translations><translation lang="pt_BR">Não foi possível exportar para Excel. Tente novamente ou reduza o resultado com os filtros.</translation><translation lang="en_US">Could not export to Excel. Try again or narrow the results with filters.</translation></translations>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+    </properties>
+</widget>
